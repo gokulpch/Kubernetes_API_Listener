@@ -132,3 +132,75 @@ if "DELETED" in event['type']:
             break
         stream2.close()
 ```
+
+## _Caveats and Limitations with the Solution_
+
+The solution above depends on the label of the network_policy, the users have a hard constraint on creating a policy which should contain "default" in the policy_name and may not be able to handle the multiple rule additions in specific cases.
+
+Flannel, doesn't support network policy. Canal, Calico, Weave etc. provides support for network policy through a policy-controller where in users has to define a default-deny on the namespaces and provide specific rules in the network_policy to allow and dis-allow traffic:
+
+
+The rule below will result in all traffic to all Pods in the Namespace to be denied.
+```
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+```
+
+In the case that you have publicly exposed a Service through Ingress and you have a default-deny policy in place or just want to limit that traffic to a specific ports.
+```
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: allow-external
+spec:
+  podSelector:
+    matchLabels:
+      app: web
+  ingress:
+  - from: []
+    ports:
+    - port: 80
+    - port: 8143
+    - port: 8080
+    - port: 9090
+```
+
+
+In this scenario the user is limiting a set of ports to allow the traffic from internet where in the calio policy-engine automatically adds these as IPTABLES on the host. When user is using a specific port as the NodePort it should be in one of the ports that a network policy contains.
+```
+'kind': 'NetworkPolicy',
+ 'metadata': {'annotations': None,
+              'cluster_name': None,
+              'creation_timestamp': datetime.datetime(2017, 12, 11, 10, 25, 8, tzinfo=tzutc()),
+              'deletion_grace_period_seconds': None,
+              'deletion_timestamp': None,
+              'finalizers': None,
+              'generate_name': None,
+              'generation': 1,
+              'initializers': None,
+              'labels': None,
+              'name': 'allow-external',
+              'namespace': 'default',
+              'owner_references': None,
+              'resource_version': '95633',
+              'self_link': '/apis/extensions/v1beta1/namespaces/default/networkpolicies/allow-external',
+              'uid': '8fac8508-de5d-11e7-837b-047d7bb73c6a'},
+ 'spec': {'egress': None,
+          'ingress': [{'_from': None,
+                       'ports': [{'port': 80, 'protocol': 'TCP'},
+                                 {'port': 8143, 'protocol': 'TCP'},
+                                 {'port': 8080, 'protocol': 'TCP'},
+                                 {'port': 9090, 'protocol': 'TCP'}]}],
+          'pod_selector': {'match_expressions': None,
+                           'match_labels': {u'app': 'web'}},
+          'policy_types': ['Ingress']}}, u'type': u'ADDED'}
+```
+
+
+
