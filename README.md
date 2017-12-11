@@ -20,6 +20,7 @@ Problem definition: Build an agent that listens to kubernetes Policy definition 
 
 * Audio Enabled
 
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/pDAgJVyHeDM/0.jpg)](https://youtu.be/pDAgJVyHeDM)
 
 
 ## _Kubernetes API_
