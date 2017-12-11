@@ -1,6 +1,5 @@
 # Kubernetes_API_Listener
-
-A sample approach which use K8's API to capture various EVENT's and triggers an action. The Demo video shows an operational work-flow.
+Problem definition: Build an agent that listens to kubernetes Policy definition via Kubernetes api server and programs the host iptable on which the container is running. The Demo video shows an operational work-flow.
 
 ## _Topology & Context_
 
