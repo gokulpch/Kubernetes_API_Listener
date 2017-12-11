@@ -135,7 +135,7 @@ if "DELETED" in event['type']:
 
 ## _Caveats and Limitations with the Solution_
 
-The solution above depends on the label of the network_policy, the users have a hard constraint on creating a policy which should contain "default" in the policy_name and may not be able to handle the multiple rule additions in specific cases.
+The solution above depends on the label of the network_policy, the users have a hard constraint on creating a policy which should contain "default" in the policy_name (lack a logic to read the rule construct from the metadata) and may not be able to handle the multiple rule additions in specific cases.
 
 Flannel, doesn't support network policy. Canal, Calico, Weave etc. provides support for network policy through a policy-controller where in users has to define a default-deny on the namespaces and provide specific rules in the network_policy to allow and dis-allow traffic:
 
@@ -171,8 +171,7 @@ spec:
     - port: 9090
 ```
 
-
-In this scenario the user is limiting a set of ports to allow the traffic from internet where in the calio policy-engine automatically adds these as IPTABLES on the host. When user is using a specific port as the NodePort it should be in one of the ports that a network policy contains.
+In this scenario the user is limiting a set of ports to allow the traffic from internet where in the calio policy-engine automatically adds these as IPTABLES on the host. When user is using a specific port as the NodePort it should be in one of the ports that a network policy contains and the containers in the namespace should have the ports in the list as container_ports.
 ```
 'kind': 'NetworkPolicy',
  'metadata': {'annotations': None,
@@ -202,5 +201,11 @@ In this scenario the user is limiting a set of ports to allow the traffic from i
           'policy_types': ['Ingress']}}, u'type': u'ADDED'}
 ```
 
+## _Enhanced Solution_
 
+An enhanced solution should:
 
+* Take the global network policy and namespaced network policy into account
+* Should contain a logic which can get information of default_deny on the namespace
+* A logic to associate the namespace deny rule with the global network_polcy object
+* Use IPTABLE pyhton bindings to dynamically read multiple port information and program the same on the host
