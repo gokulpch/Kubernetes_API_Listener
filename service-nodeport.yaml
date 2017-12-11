@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: apache-web-svc
+spec:
+  ports:
+  - nodePort: 30051
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    name: apache-web
+  type: NodePort

@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: apache-web
+  labels:
+    name: apache-web
+spec:
+  containers:
+  - image: gokulpch/web-app-qa
+    name: apache2
+    ports:
+    - containerPort: 80
+      protocol: TCP
